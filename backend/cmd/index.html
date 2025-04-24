@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Аутентификация</title>
+		<link
+			href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+			rel="stylesheet"
+		/>
+	</head>
+	<body class="bg-gray-100 flex items-center justify-center h-screen">
+		<div class="bg-white p-8 rounded-lg shadow-md w-96">
+			<!-- Форма входа -->
+			<div id="loginForm">
+				<h2 class="text-2xl font-bold mb-6 text-center">Вход</h2>
+				<form id="login">
+					<div class="mb-4">
+						<label
+							for="loginUsername"
+							class="block text-sm font-medium text-gray-700"
+							>Имя пользователя</label
+						>
+						<input
+							type="text"
+							id="loginUsername"
+							name="username"
+							required
+							class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+						/>
+					</div>
+					<div class="mb-6">
+						<label
+							for="loginPassword"
+							class="block text-sm font-medium text-gray-700"
+							>Пароль</label
+						>
+						<input
+							type="password"
+							id="loginPassword"
+							name="password"
+							required
+							class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+						/>
+					</div>
+					<button
+						type="submit"
+						class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+					>
+						Войти
+					</button>
+				</form>
+				<p class="mt-4 text-center text-gray-600">
+					Нет аккаунта?
+					<a href="#" id="showRegister" class="text-blue-500 hover:underline"
+						>Зарегистрируйтесь</a
+					>
+				</p>
+			</div>
+
+			<!-- Форма регистрации -->
+			<div id="registerForm" class="hidden">
+				<h2 class="text-2xl font-bold mb-6 text-center">Регистрация</h2>
+				<form id="register">
+					<div class="mb-4">
+						<label
+							for="registerUsername"
+							class="block text-sm font-medium text-gray-700"
+							>Имя пользователя</label
+						>
+						<input
+							type="text"
+							id="registerUsername"
+							name="username"
+							required
+							class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+						/>
+					</div>
+					<div class="mb-6">
+						<label
+							for="registerPassword"
+							class="block text-sm font-medium text-gray-700"
+							>Пароль</label
+						>
+						<input
+							type="password"
+							id="registerPassword"
+							name="password"
+							required
+							class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+						/>
+					</div>
+					<button
+						type="submit"
+						class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+					>
+						Зарегистрироваться
+					</button>
+				</form>
+				<p class="mt-4 text-center text-gray-600">
+					Уже есть аккаунт?
+					<a href="#" id="showLogin" class="text-blue-500 hover:underline"
+						>Войдите</a
+					>
+				</p>
+			</div>
+		</div>
+
+		<script>
+			// Переключение между формами входа и регистрации
+			document.getElementById('showRegister').addEventListener('click', e => {
+				e.preventDefault()
+				document.getElementById('loginForm').classList.add('hidden')
+				document.getElementById('registerForm').classList.remove('hidden')
+			})
+
+			document.getElementById('showLogin').addEventListener('click', e => {
+				e.preventDefault()
+				document.getElementById('registerForm').classList.add('hidden')
+				document.getElementById('loginForm').classList.remove('hidden')
+			})
+
+			// Обработка формы входа
+			document.getElementById('login').addEventListener('submit', async e => {
+				e.preventDefault()
+				const login = document.getElementById('loginUsername').value
+				const password = document.getElementById('loginPassword').value
+
+				const response = await fetch('/login', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ login, password }), // Ключи: login, password
+				})
+
+				const data = await response.json()
+				if (response.ok) {
+					alert('Вход выполнен успешно!')
+					localStorage.setItem('token', data.token) // Сохраняем токен
+					window.location.href = '/protected' // Перенаправление на защищённую страницу
+				} else {
+					alert('Ошибка: ' + data.message)
+				}
+			})
+
+			// Обработка формы регистрации
+			document
+				.getElementById('register')
+				.addEventListener('submit', async e => {
+					e.preventDefault()
+					const login = document.getElementById('registerUsername').value
+					const password = document.getElementById('registerPassword').value
+
+					const response = await fetch('/register', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ login, password }), // Ключи: login, password
+					})
+
+					const data = await response.json()
+					if (response.ok) {
+						alert('Регистрация выполнена успешно!')
+						// Переключение на форму входа
+						document.getElementById('registerForm').classList.add('hidden')
+						document.getElementById('loginForm').classList.remove('hidden')
+					} else {
+						alert('Ошибка: ' + data.message)
+					}
+				})
+		</script>
+	</body>
+</html>
